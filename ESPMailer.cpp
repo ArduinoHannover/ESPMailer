@@ -1,10 +1,10 @@
 #include "ESPMailer.h"
 
-ESPMailer::Mail(const char* server, const char* username, const char* password) {
+ESPMailer::ESPMailer(const char* server, const char* username, const char* password) {
 	init(server, username, password, 25);
 }
 
-ESPMailer::Mail(const char* server, const char* username, const char* password, int port) {
+ESPMailer::ESPMailer(const char* server, const char* username, const char* password, int port) {
 	init(server, username, password, port);
 }
 
