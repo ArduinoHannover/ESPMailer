@@ -9,22 +9,30 @@ SMTP Client for ESP8266
 
 ##Usage
 
-`ESPMailer mail = ESPMailer(host, user, password, [port])` Create a new mail, port defaults to 25
+`ESPMailer* mail = new ESPMailer()`: Create a new mail.
 
-`mail.setFrom(address, [name])` Set sender, optional with name, otherwise it will be set to ESP8266
+`mail->Host`: Address of your server.
 
-`mail.addTo(address)` Add a new recipient, could be `addCC` or `addBCC` too.
+`mail->Port`: Defaults to 25, change if you need.
 
-`mail.message(plaintext)` Set the message, currently only plaintext available. Attribute `_message` may get public as `Body` to get closer to PHPMailer.
+`mail->SMTPAuth`: Set to true to enable authentification, then specify `->Username` and `->Password`
 
-`mail.subject(subject)` Same transformation may apply here.
+`mail->setFrom(address, [name])`: Set sender, optional with name.
 
-`mail.setTimezone(UTC)` Difference from UTC in hours, xx.5 accepted for XX:30 time difference. If not called, UTC is used in Timestamp.
+`mail->addAddress(address, [name])`: Add a new recipient, could be `addCC` or `addBCC` too.
 
-`mail.send()` Returns true if sent successfully.
+`mail->Body`: The main message, if in HTML, you can use `AltBody` to define plaintext body.
+
+`mail->isHTML([true/false])`: Returns, if message is set to html, may set the type, if you call with boolean.
+
+`mail->Subject`: What could this be?
+
+`mail->setTimezone(hours)`: Difference from UTC in hours, xx.5 accepted for XX:30 time difference (e.g. Venezuela: -4.5 will be -0430). If not called, UTC is used in Timestamp.
+
+`mail->setDebugLevel(level)`: `-1` will be quiet, `0` just print errors (default), `1` messages from Client to Server, `2` Server answers and `3` will output everything
+
+`mail->send()` Returns true if sent successfully.
 
 ### TODO
 
-* Add more and alter functions to match PHPMailer.
-
-* Parse message to detect single dot in a line -> injection currently possible.
+* Add more functions to match PHPMailer.
