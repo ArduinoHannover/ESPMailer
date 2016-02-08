@@ -36,3 +36,5 @@ SMTP Client for ESP8266
 ### TODO
 
 * Add more functions to match PHPMailer.
+
+* SMTPS Support (#2)
