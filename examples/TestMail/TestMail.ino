@@ -36,6 +36,7 @@ void setup() {
 	mail->setDebugLevel(3);
 	mail->Host = "smtp.example.org";
 	mail->SMTPAuth = true;
+	mail->AuthType = LOGIN;
 	mail->Username = "mailer";
 	mail->Password = "foobar";
 	mail->setFrom("mail@example.org","ESP8266 Example Mailer");

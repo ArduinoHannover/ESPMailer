@@ -12,6 +12,14 @@
 #define null NULL
 #endif
 
+		
+enum AUTH {
+	PLAIN,
+	LOGIN,
+	XOAUTH2,	// Not supported
+	NTLM,		// Not supported
+	CRAM_MD5	// Not supported
+};
 
 class ESPMailer {
 	private:
@@ -39,6 +47,7 @@ class ESPMailer {
 		char* append(char*&, const char*);
 		boolean SMTPTo(char*);
 		boolean HeaderTo(const char*, char*, char*);
+		String last_reply;
 	public:
 		ESPMailer();
 		~ESPMailer();
@@ -65,7 +74,9 @@ class ESPMailer {
 		String Subject;
 		String Body;
 		uint16_t Timeout = 300;
-		String AltBody; 
+		String AltBody;
+		AUTH AuthType = PLAIN;
+		
 		boolean TLS = false;
 };
 #endif

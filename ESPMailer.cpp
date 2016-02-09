@@ -12,8 +12,8 @@ ESPMailer::~ESPMailer() {
 	free(_ccNames);
 	free(_bcc);
 	free(_bccNames);
-	//free(_from);
-	//free(_fromName);
+	//free();
+	//free();
 }
 
 void ESPMailer::a3_to_a4(unsigned char * a4, unsigned char * a3) {
@@ -80,17 +80,17 @@ boolean ESPMailer::sendCMD(const char* cmd, uint16_t code) {
 	}
 	uint32_t timeout = millis()+Timeout;
 	while (_smtp.available() < 4 && millis() < timeout) delay(1);
-	String msg = _smtp.readStringUntil('\n');
+	last_reply = _smtp.readStringUntil('\n');
 	if (do_debug > 0 && do_debug & 2) {
 		Serial.write('<');
-		Serial.println(msg);
+		Serial.println(last_reply);
 	}
-	if (msg.indexOf(String(code)) == 0) return true;
+	if (last_reply.indexOf(String(code)) == 0) return true;
 	if (do_debug < 0) return false;
 	Serial.println("Error while processing following command:");
 	Serial.write('>');
 	Serial.println(cmd);
-	Serial.println(msg);
+	Serial.println(last_reply);
 	return false;
 }
 
@@ -231,11 +231,43 @@ boolean ESPMailer::send() {
 	}
 	
 	if (SMTPAuth) {
-		if (!sendCMD("AUTH LOGIN",334)) return false;
-		base64_encode(buf, Username.c_str(), Username.length());
-		if (!sendCMD(buf,334)) return false;
-		base64_encode(buf, Password.c_str(), Password.length());
-		if (!sendCMD(buf,235)) return false;
+		switch (AuthType) {
+			case PLAIN: {
+				if (!sendCMD("AUTH PLAIN",334)) return false;
+				char plainAuth[Username.length()+Password.length()+3];
+				plainAuth[0] = '\0';
+				strcpy(&plainAuth[1], Username.c_str());
+				strcpy(&plainAuth[2+Username.length()], Password.c_str());
+				const char* pA = (const char*)&plainAuth;
+				base64_encode(buf, pA, Username.length()+Password.length()+2);
+				if (!sendCMD(buf,235)) return false;
+				break;
+			}
+			case LOGIN: {
+				if (!sendCMD("AUTH LOGIN",334)) return false;
+				base64_encode(buf, Username.c_str(), Username.length());
+				if (!sendCMD(buf,334)) return false;
+				base64_encode(buf, Password.c_str(), Password.length());
+				if (!sendCMD(buf,235)) return false;
+				break;
+			}
+			case XOAUTH2:
+			case NTLM:
+			case CRAM_MD5: {
+				if (do_debug >= 0) {
+					Serial.println("AUTH Method currently not supported");
+				}
+				return false;
+				/*
+				//CRAM:
+				//implement base64_decode and hmac
+				if (!sendCMD("AUTH CRAM-MD5",334)) return false;
+				String challenge = base64_decode(last_reply.substring(4));
+				String md5resp = Username+" "+hmac($challenge, Password);
+				if (!sendCMD(md5resp.c_str(),235)) return false;
+				*/
+			}
+		}
 	}
 	
 	sprintf(buf, "MAIL FROM:<%s>", _from);

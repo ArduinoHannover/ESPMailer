@@ -17,6 +17,8 @@ SMTP Client for ESP8266
 
 `mail->SMTPAuth`: Set to true to enable authentification, then specify `->Username` and `->Password`
 
+`mail->AuthType`: Defaults to `PLAIN`, can set to `LOGIN`; Other methods may be implemented.
+
 `mail->setFrom(address, [name])`: Set sender, optional with name.
 
 `mail->addAddress(address, [name])`: Add a new recipient, could be `addCC` or `addBCC` too.
