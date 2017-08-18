@@ -187,7 +187,7 @@ boolean ESPMailer::HeaderTo(const char* type, char* arr, char* nameArr) {
 	char* tok = strtok(arr, _delim);
 	char* nameTok = strtok(nameArr, _delim);
 	while (tok != NULL) {
-		if (strcmp(nameTok, "\r") == 0) //Fixes incorrect processing of nameTok
+		if (strcmp(nameTok, "\r") == 0)
 			_smtp.printf("%s: <%s>\r\n", type, tok);
 		else
 			_smtp.printf("%s: \"%s\" <%s>\r\n", type, nameTok, tok);
