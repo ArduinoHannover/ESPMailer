@@ -187,7 +187,7 @@ boolean ESPMailer::HeaderTo(const char* type, char* arr, char* nameArr) {
 	char* tok = strtok(arr, _delim);
 	char* nameTok = strtok(nameArr, _delim);
 	while (tok != NULL) {
-		if (strcmp(nameTok, "\r"))
+		if (strcmp(nameTok, "\r") == 0)
 			_smtp.printf("%s: <%s>\r\n", type, tok);
 		else
 			_smtp.printf("%s: \"%s\" <%s>\r\n", type, nameTok, tok);
@@ -203,7 +203,7 @@ boolean ESPMailer::send() {
 
 	NTP ntp = NTP();
 	ntp.begin();
-	
+
 	char* buf = (char*)malloc(100);
 	if (!_smtp.connect(Host.c_str(), Port)) {
 		if (do_debug >= 0) {
@@ -214,10 +214,10 @@ boolean ESPMailer::send() {
 		return false;
 	}
 	if (!sendCMD(NULL,220)) return false;
-	
+
 	sprintf(buf, "HELO %s", Host.c_str());
 	if (!sendCMD(buf,250)) return false;
-	
+
 	//Does not work - for now.
 	if (TLS) {
 		if (sendCMD("STARTTLS",220)) {
@@ -229,7 +229,7 @@ boolean ESPMailer::send() {
 			return false;
 		}
 	}
-	
+
 	if (SMTPAuth) {
 		switch (AuthType) {
 			case PLAIN: {
@@ -269,14 +269,14 @@ boolean ESPMailer::send() {
 			}
 		}
 	}
-	
+
 	sprintf(buf, "MAIL FROM:<%s>", _from);
 	if (!sendCMD(buf,250)) return false;
-	
+
 	if (!SMTPTo(_to)) return false;
 	if (!SMTPTo(_cc)) return false;
 	if (!SMTPTo(_bcc)) return false;
-	
+
 	if (!sendCMD("DATA",354)) return false;
 
 	time_t tm = ntp.get(_timezone);
@@ -294,7 +294,7 @@ boolean ESPMailer::send() {
 		(int)(_timezone),
 		floor(_timezone) == _timezone ? 0 : 30
 	);
-	
+
 	_smtp.printf("Message-Id: <%ld%ld@%s>\r\n", ESP.getChipId(),ESP.getCycleCount(), Host.c_str());
 	_smtp.println("X-Mailer: ESPMailer v2.0 (http://github.com/ArduinoHannover/ESPMailer)");
 	_smtp.printf("Subject: %s\r\n", Subject.c_str());
@@ -302,15 +302,15 @@ boolean ESPMailer::send() {
 		_smtp.printf("From: \"%s\" <%s>\r\n", _fromName, _from);
 	else
 		_smtp.printf("From: <%s>\r\n", _from);
-	
-	
+
+
 	if (_to != NULL)
 		HeaderTo("To", _to, _toNames);
 	if (_cc != NULL)
 		HeaderTo("CC", _cc, _ccNames);
 	if (_bcc != NULL)
 		HeaderTo("BCC", _bcc, _bccNames);
-	
+
 	if (AltBody.length() && html) {
 		_smtp.println("MIME-Version: 1.0");
 		_smtp.println("Content-Type: multipart/mixed; boundary=\"=ESP_MAIL_PART_MFASLAGAD\"");
